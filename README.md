@@ -1,6 +1,16 @@
 # dd_in_work
 社内＠6/2のF/W個人開発リポジトリ
 
+## 進捗/成果物
+
+凡例(✅️...完了、📍...作業中、❌️...TBD、保留中)
+
+- F/W一式
+  - 📍設計書 ... /doc/pj_design.md
+  - ❌️(TBD)ソースコード ... /src/
+  - ❌️(TBD)F/Wのバイナリ ... /bin/*.uf2
+  - ❌️(TBD)テスト結果 ... /doc/pj_test.md
+
 ## スケジュール（暫定）
 
 - 6/2(月) ... 設計
@@ -21,38 +31,3 @@
 
 - [Arduino IDE Ver2.3.6](https://github.com/arduino/arduino-ide/releases/tag/2.3.6)
 - [arduino-esp32 Ver3.2.0](https://github.com/espressif/arduino-esp32/releases/tag/3.2.0)
-
-## 成果物
-
-成果物は下記のGithubリポジトリに日々の成果を更新すること
-Github ... https://github.com/Chimipupu/dd_in_work
-
-- F/W一式
-  - 設計書
-  - ソースコード
-  - F/Wのバイナリ
-  - テスト結果
-
-## 仕様（暫定）
-
-『共通』
-
-- F/W ... WiFi経由で送受信データを送受信できること
-- OS ... 期間が1周間だけのため、工数がないのでRTOSは搭載しない
-
-『TX(送信側)』
-
-- 1)　UDPでRXに指定したLEDの色データを送信する
-- 2)　電文は「`led (RGBの色コード)`」で送る
-
-『RX(受信側)』
-
-- 1)　TXから「`led (RGBの色コード)`」を受信するまでポーリング
-- 2)　TXから指定されたLEDの色データをLEDに反映
-- 3)　TXに「`led proc ok`」または「`led proc ng`」をレスポンス
-
-### 通信フォーマット
-
-- `led (RGBの色コード)`
-    - 正常レスポンス：`led proc ok`
-    - 異常レスポンス：`led proc ng`
