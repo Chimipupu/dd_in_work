@@ -1,10 +1,10 @@
 # 【初版】詳細設計書
 
 ## 改版履歴
-- 初版（2025/6/3） ... 仕様を図解したシーケンス図を追加
+- 初版（2025/6/3） ... シーケンス図、ビルド構成を追記
 - 初版（2025/6/2） ... 初版のため作成
 
-## 仕様（暫定）
+## 1.仕様
 
 『共通』
 
@@ -39,13 +39,34 @@ sequenceDiagram
 - 2)　TXから指定されたLEDの色データをLEDに反映
 - 3)　TXに「`led proc ok`」または「`led proc ng`」をレスポンス
 
-### 無線関連
+### 1.1.無線関連
 
 - WiFi (IEEE802.11b/g/n)
 - 送受信 ... UDPやESPNOWを使用すること
 
-### 通信フォーマット
+### 1.2.通信フォーマット
 
 - `led (RGBの色コード)`
   - 正常レスポンス：`led proc ok`
   - 異常レスポンス：`led proc ng`
+
+## 2.ビルド構成
+
+- Arduino IDEでのビルド構成は下記図の通りである。
+
+<div align="center">
+  <img width="500" src="/doc/dd_in_work_arduinoide_build_info_20250603.png">
+</div>
+
+- ボード ... "ESP32S3 Dev Module"
+- USB CDC On Boot ... "Disabled"
+- CPU Frequency ... "240MHz (WiFi)"
+- Core Debug Level ... "None"
+- USB DFU On Boot ... "Disabled"
+- Erase All Flash Before Sketch Upload ... "Disabled"
+- Events Run On ... "Core 1"
+- Flash Mode ... "QIO 120MHz"
+- Flash Size ... "16MB (128Mb)"
+- JTAG Adapter ... "Integrated USB JTAG"
+- Arduino Runs On ... "Core 1"
+- USB Firmware MSC On Boot ... "Disabled"
