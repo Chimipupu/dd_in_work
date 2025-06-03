@@ -54,7 +54,7 @@ sequenceDiagram
 
 - Arduino IDEでのビルド構成は下記図の通りである。
 
-<div align="center">
+<div align="left">
   <img width="500" src="/doc/dd_in_work_arduinoide_build_info_20250603.png">
 </div>
 
