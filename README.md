@@ -1,6 +1,7 @@
 # dd_in_work
 社内＠6/2のF/W個人開発リポジトリ
 
+---
 ## 概要
 
 <div align="center">
@@ -20,6 +21,7 @@
 - [Arduino IDE ... Ver2.3.6](https://github.com/arduino/arduino-ide/releases/tag/2.3.6)
 - [arduino-esp32 ... Ver3.2.0](https://github.com/espressif/arduino-esp32/releases/tag/3.2.0)
 
+---
 ## 成果物
 
 凡例(✅️...完了、📍...作業中、❌️...TBD)
@@ -30,6 +32,7 @@
   - ❌️(TBD)F/Wのバイナリ ... /bin/*.uf2
   - ❌️(TBD)テスト結果 ... /doc/pj_test.md
 
+---
 ## スケジュール（暫定）
 
 - 6/2(月) ... 設計
