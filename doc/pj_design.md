@@ -46,9 +46,17 @@ sequenceDiagram
 
 ### 1.2.通信フォーマット
 
-- `led (RGBの色コード)`
-  - 正常レスポンス：`led proc ok`
-  - 異常レスポンス：`led proc ng`
+#### 1.2.1.通信要求
+
+- `com req` ... 通信要求
+  - 正常レスポンス：`com res ok` ... 通信準備OK
+  - 異常レスポンス：`com res ng` ... (TBD)通信準備NG
+
+#### 1.2.2.led (RGBの色コード)
+
+- `led req (RGBの色コード)` ... 指定のLED色にするよう要求
+  - 正常レスポンス：`led res ok` ... LEDの色設定OK
+  - 異常レスポンス：`led res ng` ... (TBD)LEDの色設定NG
 
 ## 2.ビルド構成
 
