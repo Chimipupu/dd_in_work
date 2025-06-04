@@ -54,13 +54,13 @@ sequenceDiagram
 - データはASCIIの文字列
 - 最大250Byte(ESP-NOWのデータ部最大)
 
-#### 1.2.1.通信要求
+#### 1.2.1.通信要求リクエスト
 
-- `COM REQ` ... 通信要求
+- `COM REQ` ... 通通信要求リクエスト
   - 正常レスポンス：`COM RES OK` ... 通信準備OK
   - 異常レスポンス：`COM RES NG` ... (TBD)通信準備NG
 
-#### 1.2.2.LEDの色コード要求
+#### 1.2.2.LED色変更リクエスト
 
 - `LED REQ (RGBの色コード)` ... 指定の色にLEDを変更する要求
   - 正常レスポンス：`LED RES OK` ... LEDの色設定OK
