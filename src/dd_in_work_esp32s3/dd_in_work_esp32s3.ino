@@ -9,6 +9,19 @@
  */
 
 #include "app_espnow.hpp"
+#include "app_led.hpp"
+
+#if 1
+// デバックでUARTでLEDの色を叩けるように
+static void led_test(void)
+{
+    if (Serial.available()) {
+        String input = Serial.readStringUntil('\n');
+        input.trim();
+        app_led_set_color(input);
+    }
+}
+#endif
 
 void setup()
 {
@@ -18,11 +31,20 @@ void setup()
         delay(100);
     }
 
+    // LEDアプリ初期化
+    app_led_init();
+
+    // ESPNOWアプリ初期化
     app_esp_init();
 }
 
 void loop()
 {
+#if 0
     app_esp_main();
     delay(1000);
+#else
+    // (DEBUG)LEDのデバック
+    led_test();
+#endif
 }

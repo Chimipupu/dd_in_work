@@ -1,0 +1,21 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x118c
+load:0x403c8700,len:0x4
+load:0x403c8704,len:0xc20
+load:0x403cb700,len:0x30e0
+entry 0x403c88b8
+[INFO] : ESP-NOW initialization succeeded
+[INFO] : ESP-NOW peer mac addr add succeeded
+[INFO] : ESP-NOW dst MAC Address : 34:85:18:46:B9:D8
+[INFO] : ESP-NOW data send succeeded
+[INFO] : ESP-NOW Send Data : COM REQ (size : 7)
+[INFO] : ESP-NOW dst MAC Address : 34:85:18:46:B9:D8
+[INFO] : ESP-NOW Send Data : COM REQ (size : 7)
+[INFO] : ESP-NOW data send succeeded
+[INFO] : ESP-NOW dst MAC Address : 34:85:18:46:B9:D8
+[INFO] : ESP-NOW Send Data : COM REQ (size : 7)
+[INFO] : ESP-NOW data send succeeded
