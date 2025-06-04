@@ -124,21 +124,24 @@ static void espnow_rx_data_parse(const uint8_t *p_rx_data)
     } else if (rx_str == "COM RES OK") {
         Serial.println("[DEBUG] : COM RES OK received");
         g_com_res_ok_flg = true;
-    } else if (rx_str.startsWith("LED_REQ")) {
+    } else if (rx_str.startsWith("LED REQ")) {
         Serial.println("[DEBUG] : LED REQ received");
         g_led_req_flg = true;
 
-        // "LED_REQ " の後ろの部分を抽出
-        uint8_t space_index = rx_str.indexOf(' ');
-        if (space_index > 0 && rx_str.length() > space_index + 1) {
-            // コマンドの引数部分を抽出
-            g_req_color_str = rx_str.substring(space_index + 1);
-            g_req_color_str.trim();  // 念のためトリム
-            Serial.printf("[DEBUG] : LED REQ Color = %s\n", g_req_color_str.c_str());
-        } else {
-            Serial.println("[ERR] : LED REQ Color NG! illigal format");
-            g_req_color_str = "";
-            g_led_req_flg = false;
+        // "LED REQ"のLEDのRGBを抽出
+        int space_index = rx_str.indexOf(' ');
+        if (space_index >= 0) {
+
+            int second_space_index = rx_str.indexOf(' ', space_index + 1);
+            if (second_space_index >= 0 && rx_str.length() > second_space_index + 1) {
+                g_req_color_str = rx_str.substring(second_space_index + 1);
+                g_req_color_str.trim();
+                Serial.printf("[DEBUG] : LED REQ Color = %s\n", g_req_color_str.c_str());
+            } else {
+                Serial.println("[ERR] : LED REQ Color NG! illigal format");
+                g_req_color_str = "";
+                g_led_req_flg = false;
+            }
         }
     } else if (rx_str == "LED RES OK") {
         Serial.println("[DEBUG] : LED RES OK received");
@@ -158,11 +161,6 @@ static void espnow_rx_data_parse(const uint8_t *p_rx_data)
 static void dd_tx_esp_main(void)
 {
     uint8_t data_len = 0;
-
-    // 受信データがあるときパースに回す
-    if(g_rx_data_flg != false) {
-        espnow_rx_data_parse((const uint8_t *)g_rx_data_buf);
-    }
 
     // 通信要求リクエストの送信
     if(g_com_res_ok_flg != true)
@@ -187,11 +185,6 @@ static void dd_tx_esp_main(void)
  */
 static void dd_rx_esp_main(void)
 {
-    // 受信データがあるときパースに回す
-    if(g_rx_data_flg != false) {
-        espnow_rx_data_parse((const uint8_t *)g_rx_data_buf);
-    }
-
     // 通信要求リクエストのレスポンスを送信
     if(g_com_req_flg != false) {
         Serial.println("[DEBUG] : COM RES OK send");
@@ -247,6 +240,11 @@ void app_esp_init(void)
 
 void app_esp_main(void)
 {
+    // 受信データがあるときパースに回す
+    if(g_rx_data_flg != false) {
+        espnow_rx_data_parse((const uint8_t *)g_rx_data_buf);
+    }
+
 #ifdef DD_ESP_TX
     dd_tx_esp_main();
 #else

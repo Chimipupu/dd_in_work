@@ -13,18 +13,17 @@ entry 0x403c88b8
 [INFO] : ESP-NOW data RX!
 [INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
 [INFO] : ESP-NOW RX Data(size:7Byte) : COM REQ
+[DEBUG] : COM REQ received
+[DEBUG] : COM RES OK send
+[INFO] : ESP-NOW Dst MAC Address : 34:85:18:8E:ED:AC
+[INFO] : ESP-NOW Send Data(size:10Byte) : COM RES OK
+[INFO] : ESP-NOW data TX OK
 [INFO] : ESP-NOW data RX!
 [INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
 [INFO] : ESP-NOW RX Data(size:13Byte) : LED REQ WHITE
-[INFO] : ESP-NOW data RX!
-[INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
-[INFO] : ESP-NOW RX Data(size:7Byte) : COM REQ
-[INFO] : ESP-NOW data RX!
-[INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
-[INFO] : ESP-NOW RX Data(size:13Byte) : LED REQ WHITE
-[INFO] : ESP-NOW data RX!
-[INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
-[INFO] : ESP-NOW RX Data(size:7Byte) : COM REQ
-[INFO] : ESP-NOW data RX!
-[INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
-[INFO] : ESP-NOW RX Data(size:13Byte) : LED REQ WHITE
+[DEBUG] : LED REQ received
+[DEBUG] : LED REQ Color = WHITE
+[DEBUG] : LED RES OK send
+[INFO] : ESP-NOW Dst MAC Address : 34:85:18:8E:ED:AC
+[INFO] : ESP-NOW data TX OK
+[INFO] : ESP-NOW Send Data(size:10Byte) : LED RES OK
