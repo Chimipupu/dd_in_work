@@ -26,7 +26,7 @@
       - ESP32-S3のGPIO48と接続
 
 <div align="center">
-  <img width="500" src="/doc/YD-ESP32-S3/IMG/img11.jpg">
+  <img width="500" src="/doc/YD-ESP32-S3_pinout.jpg">
 </div>
 
 ## 1.2.F/W仕様
