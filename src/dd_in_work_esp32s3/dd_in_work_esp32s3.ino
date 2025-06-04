@@ -8,8 +8,11 @@
  * 
  */
 
+#include "common.hpp"
 #include "app_espnow.hpp"
 #include "app_led.hpp"
+
+static void led_test(void);
 
 #if 1
 // デバックでUARTでLEDの色を叩けるように
@@ -25,6 +28,7 @@ static void led_test(void)
 
 void setup()
 {
+    // UART初期化
     Serial.begin(115200);
 
     while (!Serial) {
@@ -40,11 +44,12 @@ void setup()
 
 void loop()
 {
-#if 0
-    app_esp_main();
-    delay(1000);
-#else
+#ifdef DEBUG_DD_ESP
     // (DEBUG)LEDのデバック
     led_test();
 #endif
+
+    app_esp_main();
+    delay(1000);
+
 }

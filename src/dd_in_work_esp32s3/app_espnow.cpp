@@ -1,12 +1,16 @@
 #include "app_espnow.hpp"
+#include "app_led.hpp"
 
 // 通信フォーマット
-const char CMD_COM_REQ[] = "COM REQ";   // 通信要求リクエスト
-const char RES_COM_OK[] = "COM RES OK"; // 通信要求レスポンス
+const char CMD_COM_REQ[] = "COM REQ";             // 通信要求リクエスト
+const char RES_COM_OK[]  = "COM RES OK";          // 通信要求レスポンス
 
-const char CMD_LED_REQ[] = "LED REQ";   // LED色変更リクエスト
-const char RES_LED_OK[] = "LED RES OK"; // LED色変更レスポンス
-
+const char CMD_LED_REQ[] = "LED REQ";             // LED色変更リクエスト
+const char CMD_LED_REQ_RED[] = "LED REQ RED";     // LED色変更リクエスト 赤
+const char CMD_LED_REQ_GREEN[] = "LED REQ GREEN"; // LED色変更リクエスト 緑
+const char CMD_LED_REQ_BLUE[] = "LED REQ BLUE";   // LED色変更リクエスト 青
+const char CMD_LED_REQ_WHITE[] = "LED REQ WHITE"; // LED色変更リクエスト 白
+const char RES_LED_OK[]  = "LED RES OK";          // LED色変更レスポンス
 
 // TX(送信側)... WiFi MACアドレス(34:85:18:8E:ED:AC)
 // RX(受信側)... WiFi MACアドレス(34:85:18:46:B9:D8)
@@ -18,8 +22,6 @@ esp_now_peer_info_t g_espnow_peer_Info;
 static esp_err_t espnow_send_data(uint8_t *p_mac_addr, uint8_t *p_date_buf, uint8_t data_len);
 static void cb_espnow_tx_data(const uint8_t *p_mac_addr, esp_now_send_status_t status);
 static void cb_espnow_rx_data(const esp_now_recv_info_t *p_esp_now_recv_info, const uint8_t *p_rx_data, int data_len);
-
-static void espnow_data_pase(void);
 
 #ifdef DEBUG_DD_ESP
 static void mac_addr_print(void);
@@ -35,29 +37,33 @@ static String get_mac_addr(esp_mac_type_t mac_type);
 static void cb_espnow_tx_data(const uint8_t *p_mac_addr, esp_now_send_status_t status)
 {
     if(status == ESP_NOW_SEND_SUCCESS) {
-        Serial.println("[INFO] : ESP-NOW data send succeeded");
+        Serial.println("[INFO] : ESP-NOW data TX OK");
     } else {
-        Serial.printf("[ERR] : ESP-NOW data send failed. ERROR CODE : 0x%02X\r\n", status);
+        Serial.printf("[ERR] : ESP-NOW data TX NG. ERROR CODE : 0x%02X\r\n", status);
     }
 }
 
-/**
- * @brief ESPNOW受信完了時のコールバック関数(引数の順番、型はESP-NOWの仕様準拠)
- * 
- * @param p_esp_now_recv_info 送り元情報構造体ポインタ
- * @param p_rx_data 受信データポインタ
- * @param data_len 受信データ長
- */
 static void cb_espnow_rx_data(const esp_now_recv_info_t *p_esp_now_recv_info, const uint8_t *p_rx_data, int data_len)
 {
-    // TODO
+    Serial.println("[INFO] : ESP-NOW data RX!");
+    Serial.printf("[INFO] : ESP-NOW Src MAC Address : %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+                    g_espnow_peer_Info.peer_addr[0], g_espnow_peer_Info.peer_addr[1],
+                    g_espnow_peer_Info.peer_addr[2], g_espnow_peer_Info.peer_addr[3],
+                    g_espnow_peer_Info.peer_addr[4], g_espnow_peer_Info.peer_addr[5]);
+
+    char buf[250] = {0};
+    memset(buf, 0x00, sizeof(buf));
+    uint8_t copy_len =  (data_len < (sizeof(buf) - 1)) ? data_len : (sizeof(buf) - 1);
+    memcpy(buf, p_rx_data, copy_len);
+    buf[copy_len] = '\0';
+
+    // String型にして末尾の空白や改行を削除
+    String rx_str = String(buf);
+    rx_str.trim();  // 先頭・末尾のスペース、タブ、CR/LFなどを削除
+
+    Serial.printf("[INFO] : ESP-NOW RX Data(size:%dByte) : %s\r\n", copy_len, rx_str.c_str());
 }
 
-/**
- * @brief ESP-NOWデータ送信関数
- * 
- * @param p_date_buf 
- */
 
 /**
  * @brief ESP-NOWデータ送信関数
@@ -70,18 +76,15 @@ static void cb_espnow_rx_data(const esp_now_recv_info_t *p_esp_now_recv_info, co
 static esp_err_t espnow_send_data(uint8_t *p_mac_addr, uint8_t *p_date_buf, uint8_t data_len)
 {
     esp_err_t ret = ESP_OK;
+
     ret = esp_now_send(p_mac_addr, p_date_buf, data_len);
+    Serial.printf("[INFO] : ESP-NOW Dst MAC Address : %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+                    p_mac_addr[0], p_mac_addr[1],
+                    p_mac_addr[2], p_mac_addr[3],
+                    p_mac_addr[4], p_mac_addr[5]);
+    Serial.printf("[INFO] : ESP-NOW Send Data(size:%dByte) : %s\r\n", data_len, p_date_buf);
 
     return ret;
-}
-
-/**
- * @brief ESP-NOWのデータ解析関数
- * 
- */
-static void espnow_data_pase(void)
-{
-    
 }
 
 #ifdef DD_ESP_TX
@@ -96,15 +99,13 @@ static void dd_tx_esp_main(void)
     // 通信要求リクエストの送信
     data_len = strlen(&CMD_COM_REQ[0]);
     espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)CMD_COM_REQ, data_len);
-    Serial.printf("[INFO] : ESP-NOW dst MAC Address : %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-                    g_espnow_peer_Info.peer_addr[0], g_espnow_peer_Info.peer_addr[1],
-                    g_espnow_peer_Info.peer_addr[2], g_espnow_peer_Info.peer_addr[3],
-                    g_espnow_peer_Info.peer_addr[4], g_espnow_peer_Info.peer_addr[5]);
-    Serial.printf("[INFO] : ESP-NOW Send Data : %s (size : %d)\r\n", CMD_COM_REQ, data_len);
 
     // (TODO)レスポンス待ち
+    delay(1000);
 
     // (TODO)LEDの色変更リクエストの送信
+    data_len = strlen(&CMD_LED_REQ_WHITE[0]);
+    espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)CMD_LED_REQ_WHITE, data_len);
 
     // (TODO)レスポンス待ち（一旦、タイムアウトなし）
 }

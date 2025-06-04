@@ -1,0 +1,30 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x118c
+load:0x403c8700,len:0x4
+load:0x403c8704,len:0xc20
+load:0x403cb700,len:0x30e0
+entry 0x403c88b8
+[INFO] : ESP-NOW initialization succeeded
+[INFO] : ESP-NOW peer mac addr add succeeded
+[INFO] : ESP-NOW data RX!
+[INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
+[INFO] : ESP-NOW RX Data(size:7Byte) : COM REQ
+[INFO] : ESP-NOW data RX!
+[INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
+[INFO] : ESP-NOW RX Data(size:13Byte) : LED REQ WHITE
+[INFO] : ESP-NOW data RX!
+[INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
+[INFO] : ESP-NOW RX Data(size:7Byte) : COM REQ
+[INFO] : ESP-NOW data RX!
+[INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
+[INFO] : ESP-NOW RX Data(size:13Byte) : LED REQ WHITE
+[INFO] : ESP-NOW data RX!
+[INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
+[INFO] : ESP-NOW RX Data(size:7Byte) : COM REQ
+[INFO] : ESP-NOW data RX!
+[INFO] : ESP-NOW Src MAC Address : 34:85:18:8E:ED:AC
+[INFO] : ESP-NOW RX Data(size:13Byte) : LED REQ WHITE

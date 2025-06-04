@@ -1,8 +1,7 @@
 #ifndef APP_LED_HPP
 #define APP_LED_HPP
 
-#include <stdint.h>
-#include <string.h>
+#include "common.hpp"
 #include <Adafruit_NeoPixel.h>
 
 #define LED_PIN   48   // LEDとの接続ピン番号
