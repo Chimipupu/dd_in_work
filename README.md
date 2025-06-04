@@ -12,7 +12,7 @@
 - ESP32でWiFiを通してデータを送受信できること
 
 『H/W』
-- ESP32-S3 開発基板（私物）
+- 私物のESP32-S3 開発基板（型番:[VCC-GND YD-ESP32-S3🔗](https://github.com/vcc-gnd/YD-ESP32-S3)）
   - TX(送信側)... WiFi MACアドレス(34:85:18:8E:ED:AC)
   - RX(受信側)... WiFi MACアドレス(34:85:18:46:B9:D8)
 

@@ -1,0 +1,6 @@
+[submodule "doc/YD-ESP32S3/YD-ESP32-S3"]
+	path = doc/YD-ESP32S3/YD-ESP32-S3
+	url = https://github.com/vcc-gnd/YD-ESP32-S3
+[submodule "doc/YD-ESP32-S3"]
+	path = doc/YD-ESP32-S3
+	url = https://github.com/vcc-gnd/YD-ESP32-S3
