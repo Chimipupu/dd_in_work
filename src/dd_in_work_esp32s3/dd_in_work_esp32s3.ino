@@ -50,6 +50,4 @@ void loop()
 #endif
 
     app_esp_main();
-    delay(1000);
-
 }

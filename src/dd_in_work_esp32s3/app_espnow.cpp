@@ -1,33 +1,23 @@
 #include "app_espnow.hpp"
 #include "app_led.hpp"
 
-// 通信フォーマット
-const char CMD_COM_REQ[] = "COM REQ";             // 通信要求リクエスト
-const char RES_COM_OK[]  = "COM RES OK";          // 通信要求レスポンス
-
-const char CMD_LED_REQ[] = "LED REQ";             // LED色変更リクエスト
-const char CMD_LED_REQ_RED[] = "LED REQ RED";     // LED色変更リクエスト 赤
-const char CMD_LED_REQ_GREEN[] = "LED REQ GREEN"; // LED色変更リクエスト 緑
-const char CMD_LED_REQ_BLUE[] = "LED REQ BLUE";   // LED色変更リクエスト 青
-const char CMD_LED_REQ_WHITE[] = "LED REQ WHITE"; // LED色変更リクエスト 白
-const char RES_LED_OK[]  = "LED RES OK";          // LED色変更レスポンス
-
 // TX(送信側)... WiFi MACアドレス(34:85:18:8E:ED:AC)
 // RX(受信側)... WiFi MACアドレス(34:85:18:46:B9:D8)
 uint8_t g_tx_mac_addr[] = {0x34, 0x85, 0x18, 0x8E, 0xED, 0xAC};
 uint8_t g_rx_mac_addr[] = {0x34, 0x85, 0x18, 0x46, 0xB9, 0xD8};
 
-// 受信データフラグ
-bool g_rx_data_flg = false;
-bool g_com_req_flg = false; // 通信要求フラグ
-bool g_led_req_flg = false;  // LED色変更要求フラグ
-// 受信データバッファ
-char g_rx_data_buf[250] = {0};
-// LED色変更要求のRGB値の文字列
-String g_req_color_str = "";
+// 送信データバッファ
+uint8_t g_tx_data_buf[250] = {0};
 
-bool g_com_res_ok_flg = false; // 通信要求レスポンスOKフラグ
-bool g_led_res_ok_flg = false; // LED色変更レスポンスOKフラグ
+bool g_com_req_flg = false;     // 通信要求フラグ
+bool g_led_req_flg = false;     // LED色変更要求フラグ
+
+bool g_rx_data_flg = false;     // 受信データフラグ
+char g_rx_data_buf[250] = {0};  // 受信データバッファ
+String g_req_color_str = "";    // LED色変更要求のRGB値の文字列
+
+bool g_com_res_ok_flg = false;  // 通信要求レスポンスOKフラグ
+bool g_led_res_ok_flg = false;  // LED色変更レスポンスOKフラグ
 
 // ESPNOWのピア（通信相手）情報
 esp_now_peer_info_t g_espnow_peer_Info;
@@ -40,6 +30,7 @@ static void espnow_rx_data_parse(const uint8_t *p_rx_data);
 #ifdef DEBUG_DD_ESP
 static void mac_addr_print(void);
 static String get_mac_addr(esp_mac_type_t mac_type);
+bool g_debug_com_flg = true; // デバッグ用の通信フラグ
 #endif // DEBUG_DD_ESP
 
 /**
@@ -81,6 +72,9 @@ static void cb_espnow_rx_data(const esp_now_recv_info_t *p_esp_now_recv_info, co
     g_rx_data_buf[sizeof(g_rx_data_buf) - 1] = '\0';
 
     Serial.printf("[INFO] : ESP-NOW RX Data(size:%dByte) : %s\r\n", copy_len, rx_str.c_str());
+
+    // 受信データのパース
+    espnow_rx_data_parse((const uint8_t *)g_rx_data_buf);
 }
 
 /**
@@ -118,10 +112,10 @@ static void espnow_rx_data_parse(const uint8_t *p_rx_data)
     String rx_str = String(buf);
     rx_str.trim();
 
-    if (rx_str == "COM REQ") {
+    if (rx_str.startsWith("COM REQ")) {
         Serial.println("[DEBUG] : COM REQ received");
         g_com_req_flg = true;
-    } else if (rx_str == "COM RES OK") {
+    } else if (rx_str.startsWith("COM RES OK")) {
         Serial.println("[DEBUG] : COM RES OK received");
         g_com_res_ok_flg = true;
     } else if (rx_str.startsWith("LED REQ")) {
@@ -143,7 +137,7 @@ static void espnow_rx_data_parse(const uint8_t *p_rx_data)
                 g_led_req_flg = false;
             }
         }
-    } else if (rx_str == "LED RES OK") {
+    } else if (rx_str.startsWith("LED RES OK")) {
         Serial.println("[DEBUG] : LED RES OK received");
         g_led_res_ok_flg = true;
     } else {
@@ -163,45 +157,49 @@ static void dd_tx_esp_main(void)
     uint8_t data_len = 0;
 
     // 通信要求リクエストの送信
-    if(g_com_res_ok_flg != true)
-    {
+    if (g_com_res_ok_flg != true) {
         data_len = strlen(&CMD_COM_REQ[0]);
         espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)CMD_COM_REQ, data_len);
     }
 
-    // LEDの色変更リクエストの送信
-    if((g_com_res_ok_flg != false) && (g_led_res_ok_flg != true)) {
-        data_len = strlen(&CMD_LED_REQ_WHITE[0]);
-        espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)CMD_LED_REQ_WHITE, data_len);
+    // LED色変更リクエストの送信
+#ifdef DEBUG_DD_ESP
+    if ((g_com_res_ok_flg != false) && (g_debug_com_flg != false)) {
+#else
+    if (g_com_res_ok_flg != false) {
+#endif // DEBUG_DD_ESP
+        // LED色変更リクエストのデータ生成
+        memset(&g_tx_data_buf[0], 0x00, sizeof(g_tx_data_buf));
+        app_led_req_data_gen(&g_tx_data_buf[0]);
+
+        data_len = strlen((const char *)g_tx_data_buf);
+        espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)g_tx_data_buf, data_len);
         g_led_res_ok_flg = false;
     }
 }
-#endif // DD_ESP_TX
-
-#ifdef DD_ESP_RX
+#else
 /**
- * @brief ESP-NOW rXメイン関数
+ * @brief ESP-NOW RXメイン関数
  * 
  */
 static void dd_rx_esp_main(void)
 {
     // 通信要求リクエストのレスポンスを送信
-    if(g_com_req_flg != false) {
+    if (g_com_req_flg != false) {
         Serial.println("[DEBUG] : COM RES OK send");
         espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)RES_COM_OK, strlen(RES_COM_OK));
         g_com_req_flg = false;
     }
 
     // LED色変更リクエストのレスポンスを送信
-    if(g_led_req_flg != false)
-    {
+    if (g_led_req_flg != false){
         Serial.println("[DEBUG] : LED RES OK send");
         app_led_set_color(g_req_color_str);
         espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)RES_LED_OK, strlen(RES_LED_OK));
         g_led_req_flg = false;
     }
 }
-#endif // DD_ESP_RX
+#endif // DD_ESP_TX
 
 void app_esp_init(void)
 {
@@ -240,18 +238,11 @@ void app_esp_init(void)
 
 void app_esp_main(void)
 {
-    // 受信データがあるときパースに回す
-    if(g_rx_data_flg != false) {
-        espnow_rx_data_parse((const uint8_t *)g_rx_data_buf);
-    }
-
 #ifdef DD_ESP_TX
     dd_tx_esp_main();
 #else
     dd_rx_esp_main();
-#endif // DD_ESP_RX
-
-    delay(2000);
+#endif // DD_ESP_TX
 }
 
 // ↓デバッグ用

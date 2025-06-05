@@ -1,7 +1,11 @@
 #include "app_led.hpp"
+#include "app_espnow.hpp"
 
 Adafruit_NeoPixel pixels(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 static void led_test(void);
+
+rgb_led_t g_rgb;
+static void rgb_val_inc(void);
 
 /**
  * @brief LEDアプリ初期化
@@ -22,6 +26,48 @@ void app_led_init(void)
 void app_led_main(void)
 {
     // TODO
+}
+
+/**
+ * @brief RGB値のインクリメント
+ * 
+ */
+static void rgb_val_inc(void)
+{
+    g_rgb.r ++;
+
+    if (g_rgb.r > 255) {
+        g_rgb.r = 0;
+        g_rgb.g++;
+        if (g_rgb.g > 255) {
+            g_rgb.g = 0;
+            g_rgb.b++;
+            if (g_rgb.b > 255) {
+                g_rgb.b = 0;
+            }
+        }
+    }
+
+    Serial.printf("[DEBUG] : RGB val (R:0x%02X,G:0x%02X,B:0x%02X)\r\n", g_rgb.r, g_rgb.g, g_rgb.b);
+}
+
+/**
+ * @brief LED色変更リクエストのデータ生成関数
+ * 
+ */
+void app_led_req_data_gen(uint8_t *p_tx_buf)
+{
+    char color_code[8] = {0}; // "#RRGGBB" + '\0' = 8文字
+
+    // RGB値をインクリメント
+    rgb_val_inc();
+
+    // RGB値を "#RRGGBB" 形式に変換
+    snprintf(color_code, sizeof(color_code), "#%02X%02X%02X", g_rgb.r, g_rgb.g, g_rgb.b);
+    memcpy(p_tx_buf, CMD_LED_REQ, strlen(CMD_LED_REQ));
+    size_t offset = strlen(CMD_LED_REQ);
+    p_tx_buf += offset;
+    memcpy(p_tx_buf, color_code, strlen(color_code));
 }
 
 /**
