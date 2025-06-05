@@ -156,6 +156,7 @@ static void espnow_rx_data_parse(const uint8_t *p_rx_data)
 static void dd_tx_esp_main(void)
 {
     uint8_t data_len = 0;
+    uint8_t *p_buf;
     char color_code[8] = {0}; // "#RRGGBB" + '\0' = 8文字
 
     // 通信要求リクエストの送信
@@ -167,8 +168,11 @@ static void dd_tx_esp_main(void)
     // LED色変更リクエストの送信
     if (g_com_res_ok_flg != false) {
         // LED色変更リクエストのデータ生成
+        p_buf = &g_tx_data_buf[0];
         memset(&g_tx_data_buf[0], 0x00, sizeof(g_tx_data_buf));
-        app_led_req_data_gen(&g_tx_data_buf[0], &g_rgb);
+        memcpy(g_tx_data_buf, CMD_LED_REQ, strlen(CMD_LED_REQ));
+        p_buf += strlen(CMD_LED_REQ);
+        app_led_req_data_gen(p_buf, &g_rgb);
         data_len = strlen((const char *)g_tx_data_buf);
 #ifdef DD_ESP_TX
         Serial.printf("[DEBUG] : TX LED Color 0x%s\r\n", color_code);

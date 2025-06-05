@@ -37,12 +37,7 @@ void app_led_init(void)
 }
 
 /**
- * @brief LED色変更リクエストのデータ生成関数
- * 
- */
-
-/**
- * @brief LED色変更リクエストのデータ生成関数
+ * @brief LED色変更リクエストのデータ部分の生成関数
  * 
  * @param p_tx_buf 送信用データバッファポインタ
  * @param p_led_t RGBの色情報構造体ポインタ
@@ -57,9 +52,6 @@ void app_led_init(void)
     // RGB値を "#RRGGBB" 形式に変換
     snprintf(color_code, sizeof(color_code),"#%02X%02X%02X",
             p_led_t->r, p_led_t->g, p_led_t->b);
-    memcpy(p_tx_buf, CMD_LED_REQ, strlen(CMD_LED_REQ));
-    size_t offset = strlen(CMD_LED_REQ);
-    p_tx_buf += offset;
     memcpy(p_tx_buf, color_code, strlen(color_code));
 }
 
