@@ -19,8 +19,9 @@ String g_req_color_str = "";    // LED色変更要求のRGB値の文字列
 bool g_com_res_ok_flg = false;  // 通信要求レスポンスOKフラグ
 bool g_led_res_ok_flg = false;  // LED色変更レスポンスOKフラグ
 
-// ESPNOWのピア（通信相手）情報
-esp_now_peer_info_t g_espnow_peer_Info;
+esp_now_peer_info_t g_espnow_peer_Info; // ESPNOWのピア（通信相手）情報
+
+rgb_led_t g_rgb; // RGB LEDの色情報
 
 static esp_err_t espnow_send_data(uint8_t *p_mac_addr, uint8_t *p_date_buf, uint8_t data_len);
 static void cb_espnow_tx_data(const uint8_t *p_mac_addr, esp_now_send_status_t status);
@@ -155,6 +156,7 @@ static void espnow_rx_data_parse(const uint8_t *p_rx_data)
 static void dd_tx_esp_main(void)
 {
     uint8_t data_len = 0;
+    char color_code[8] = {0}; // "#RRGGBB" + '\0' = 8文字
 
     // 通信要求リクエストの送信
     if (g_com_res_ok_flg != true) {
@@ -163,17 +165,21 @@ static void dd_tx_esp_main(void)
     }
 
     // LED色変更リクエストの送信
-#ifdef DEBUG_DD_ESP
-    if ((g_com_res_ok_flg != false) && (g_debug_com_flg != false)) {
-#else
     if (g_com_res_ok_flg != false) {
-#endif // DEBUG_DD_ESP
         // LED色変更リクエストのデータ生成
         memset(&g_tx_data_buf[0], 0x00, sizeof(g_tx_data_buf));
-        app_led_req_data_gen(&g_tx_data_buf[0]);
-
+        app_led_req_data_gen(&g_tx_data_buf[0], &g_rgb);
         data_len = strlen((const char *)g_tx_data_buf);
+#ifdef DD_ESP_TX
+        Serial.printf("[DEBUG] : TX LED Color 0x%s\r\n", color_code);
+        memset(color_code, 0x00, sizeof(color_code));
+        snprintf(color_code, sizeof(color_code),"#%02X%02X%02X",
+                g_rgb.r, g_rgb.g, g_rgb.b);
+        app_led_set_color(color_code);
+#endif
+
         espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)g_tx_data_buf, data_len);
+
         g_led_res_ok_flg = false;
     }
 }

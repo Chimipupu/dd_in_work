@@ -1,11 +1,8 @@
 #include "app_led.hpp"
-#include "app_espnow.hpp"
 
 Adafruit_NeoPixel pixels(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 static void led_test(void);
-
-rgb_led_t g_rgb;
-static void rgb_val_inc(void);
+static void rgb_val_inc(rgb_led_t *p_led_t);
 
 /**
  * @brief LEDアプリ初期化
@@ -20,30 +17,22 @@ void app_led_init(void)
 }
 
 /**
- * @brief LEDアプリメイン
+ * @brief RGB値のインクリメント関数
  * 
+ * @param p_led_t RGBの色情報構造体ポインタ
  */
-void app_led_main(void)
+ static void rgb_val_inc(rgb_led_t *p_led_t)
 {
-    // TODO
-}
-
-/**
- * @brief RGB値のインクリメント
- * 
- */
-static void rgb_val_inc(void)
-{
-    if (g_rgb.r < 255) {
-        g_rgb.r++;
-    } else if (g_rgb.g < 255) {
-        g_rgb.g++;
-    } else if (g_rgb.b < 255) {
-        g_rgb.b++;
+    if (p_led_t->r < 255) {
+        p_led_t->r++;
+    } else if (p_led_t->g < 255) {
+        p_led_t->g++;
+    } else if (p_led_t->b < 255) {
+        p_led_t->b++;
     } else {
-        g_rgb.r = 0;
-        g_rgb.g = 0;
-        g_rgb.b = 0;
+        p_led_t->r = 0;
+        p_led_t->g = 0;
+        p_led_t->b = 0;
     }
 }
 
@@ -51,30 +40,33 @@ static void rgb_val_inc(void)
  * @brief LED色変更リクエストのデータ生成関数
  * 
  */
-void app_led_req_data_gen(uint8_t *p_tx_buf)
+
+/**
+ * @brief LED色変更リクエストのデータ生成関数
+ * 
+ * @param p_tx_buf 送信用データバッファポインタ
+ * @param p_led_t RGBの色情報構造体ポインタ
+ */
+ void app_led_req_data_gen(uint8_t *p_tx_buf, rgb_led_t *p_led_t)
 {
     char color_code[8] = {0}; // "#RRGGBB" + '\0' = 8文字
 
     // RGB値をインクリメント
-    rgb_val_inc();
+    rgb_val_inc(p_led_t);
 
     // RGB値を "#RRGGBB" 形式に変換
-    snprintf(color_code, sizeof(color_code), "#%02X%02X%02X", g_rgb.r, g_rgb.g, g_rgb.b);
+    snprintf(color_code, sizeof(color_code),"#%02X%02X%02X",
+            p_led_t->r, p_led_t->g, p_led_t->b);
     memcpy(p_tx_buf, CMD_LED_REQ, strlen(CMD_LED_REQ));
     size_t offset = strlen(CMD_LED_REQ);
     p_tx_buf += offset;
     memcpy(p_tx_buf, color_code, strlen(color_code));
-
-#ifdef DD_ESP_TX
-    Serial.printf("[DEBUG] : TX, Sync LED Color 0x%s\r\n", color_code);
-    app_led_set_color(String(color_code));
-#endif
 }
 
 /**
  * @brief ASCIIで指定された色名、RGBt値をLEDに設定する関数
  * 
- * @param color_name 
+ * @param color_name RGBのASCII文字列（例:#FF32DB)
  */
 void app_led_set_color(String color_name)
 {
