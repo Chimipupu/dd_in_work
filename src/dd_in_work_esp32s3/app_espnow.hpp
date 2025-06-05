@@ -7,8 +7,8 @@
 #include <WiFi.h>
 
 // ESPNOW送信、受信側のコンパイルスイッチ
-// #define DD_ESP_TX
-#define DD_ESP_RX
+#define DD_ESP_TX
+// #define DD_ESP_RX
 
 // 通信フォーマット
 const char CMD_COM_REQ[] = "COM REQ";             // 通信要求リクエスト

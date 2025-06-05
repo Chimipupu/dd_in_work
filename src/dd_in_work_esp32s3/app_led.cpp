@@ -34,21 +34,17 @@ void app_led_main(void)
  */
 static void rgb_val_inc(void)
 {
-    g_rgb.r ++;
-
-    if (g_rgb.r > 255) {
-        g_rgb.r = 0;
+    if (g_rgb.r < 255) {
+        g_rgb.r++;
+    } else if (g_rgb.g < 255) {
         g_rgb.g++;
-        if (g_rgb.g > 255) {
-            g_rgb.g = 0;
-            g_rgb.b++;
-            if (g_rgb.b > 255) {
-                g_rgb.b = 0;
-            }
-        }
+    } else if (g_rgb.b < 255) {
+        g_rgb.b++;
+    } else {
+        g_rgb.r = 0;
+        g_rgb.g = 0;
+        g_rgb.b = 0;
     }
-
-    Serial.printf("[DEBUG] : RGB val (R:0x%02X,G:0x%02X,B:0x%02X)\r\n", g_rgb.r, g_rgb.g, g_rgb.b);
 }
 
 /**
@@ -68,6 +64,11 @@ void app_led_req_data_gen(uint8_t *p_tx_buf)
     size_t offset = strlen(CMD_LED_REQ);
     p_tx_buf += offset;
     memcpy(p_tx_buf, color_code, strlen(color_code));
+
+#ifdef DD_ESP_TX
+    Serial.printf("[DEBUG] : TX, Sync LED Color 0x%s\r\n", color_code);
+    app_led_set_color(String(color_code));
+#endif
 }
 
 /**
