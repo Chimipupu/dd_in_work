@@ -122,15 +122,14 @@ static void espnow_rx_data_parse(const uint8_t *p_rx_data)
     } else if (rx_str.startsWith("LED REQ")) {
         Serial.println("[DEBUG] : LED REQ received");
         g_led_req_flg = true;
-
-        // "LED REQ"のLEDのRGBを抽出
+        // "LED REQ"のRGB値を抽出
         int space_index = rx_str.indexOf(' ');
         if (space_index >= 0) {
-
             int second_space_index = rx_str.indexOf(' ', space_index + 1);
             if (second_space_index >= 0 && rx_str.length() > second_space_index + 1) {
                 g_req_color_str = rx_str.substring(second_space_index + 1);
                 g_req_color_str.trim();
+                app_led_set_color(g_req_color_str);
                 Serial.printf("[DEBUG] : LED REQ Color = %s\n", g_req_color_str.c_str());
             } else {
                 Serial.println("[ERR] : LED REQ Color NG! illigal format");
@@ -196,17 +195,16 @@ static void dd_rx_esp_main(void)
 {
     // 通信要求リクエストのレスポンスを送信
     if (g_com_req_flg != false) {
-        Serial.println("[DEBUG] : COM RES OK send");
         espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)RES_COM_OK, strlen(RES_COM_OK));
         g_com_req_flg = false;
+        Serial.println("[DEBUG] : COM RES OK send");
     }
 
     // LED色変更リクエストのレスポンスを送信
     if (g_led_req_flg != false){
-        Serial.println("[DEBUG] : LED RES OK send");
-        app_led_set_color(g_req_color_str);
         espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)RES_LED_OK, strlen(RES_LED_OK));
         g_led_req_flg = false;
+        Serial.println("[DEBUG] : LED RES OK send");
     }
 }
 #endif // DD_ESP_TX
