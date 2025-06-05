@@ -46,7 +46,7 @@ void loop()
 {
 #ifdef DEBUG_DD_ESP
     // (DEBUG)LEDのデバック
-    led_test();
+    // led_test();
 #endif
 
     app_esp_main();

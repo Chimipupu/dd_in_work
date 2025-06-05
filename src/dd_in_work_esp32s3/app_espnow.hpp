@@ -4,6 +4,7 @@
 #include "common.hpp"
 #include "esp_mac.h"
 #include <esp_now.h>
+#include <esp_wifi.h>
 #include <WiFi.h>
 
 // ESPNOW送信、受信側のコンパイルスイッチ

@@ -139,6 +139,14 @@ static void espnow_rx_data_parse(const uint8_t *p_rx_data)
         }
     } else if (rx_str.startsWith("LED RES OK")) {
         Serial.println("[DEBUG] : LED RES OK received");
+#ifdef DD_ESP_TX
+        char color_code[8] = {0}; // "#RRGGBB" + '\0' = 8文字
+        Serial.printf("[DEBUG] : TX LED Color 0x%s\r\n", color_code);
+        memset(color_code, 0x00, sizeof(color_code));
+        snprintf(color_code, sizeof(color_code),"#%02X%02X%02X",
+                g_rgb.r, g_rgb.g, g_rgb.b);
+        app_led_set_color(color_code);
+#endif // DD_ESP_TX
         g_led_res_ok_flg = true;
     } else {
         // NOP
@@ -156,7 +164,6 @@ static void dd_tx_esp_main(void)
 {
     uint8_t data_len = 0;
     uint8_t *p_buf;
-    char color_code[8] = {0}; // "#RRGGBB" + '\0' = 8文字
 
     // 通信要求リクエストの送信
     if (g_com_res_ok_flg != true) {
@@ -166,23 +173,13 @@ static void dd_tx_esp_main(void)
 
     // LED色変更リクエストの送信
     if (g_com_res_ok_flg != false) {
-        // LED色変更リクエストのデータ生成
         p_buf = &g_tx_data_buf[0];
         memset(&g_tx_data_buf[0], 0x00, sizeof(g_tx_data_buf));
         memcpy(g_tx_data_buf, CMD_LED_REQ, strlen(CMD_LED_REQ));
         p_buf += strlen(CMD_LED_REQ);
         app_led_req_data_gen(p_buf, &g_rgb);
         data_len = strlen((const char *)g_tx_data_buf);
-#ifdef DD_ESP_TX
-        Serial.printf("[DEBUG] : TX LED Color 0x%s\r\n", color_code);
-        memset(color_code, 0x00, sizeof(color_code));
-        snprintf(color_code, sizeof(color_code),"#%02X%02X%02X",
-                g_rgb.r, g_rgb.g, g_rgb.b);
-        app_led_set_color(color_code);
-#endif
-
         espnow_send_data(g_espnow_peer_Info.peer_addr, (uint8_t *)g_tx_data_buf, data_len);
-
         g_led_res_ok_flg = false;
     }
 }
@@ -215,6 +212,8 @@ void app_esp_init(void)
 
     // WiFi初期化
     WiFi.mode(WIFI_STA);
+    // WiFiを長距離通信モードに変更
+    esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_LR);
     ret = esp_now_init();
 
     if( ret != ESP_OK){
